@@ -50,7 +50,7 @@
         }
 
         .toggle-buttons {
-            margin-bottom: 35px;
+            margin-bottom: 20px; /* Reduzido para dar espaço ao input */
             display: flex;
             gap: 20px;
             flex-wrap: wrap; /* Para responsividade */
@@ -88,6 +88,46 @@
         .toggle-buttons button.active:hover {
             background-color: #81e6d9;
         }
+
+        .year-selector {
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 20px;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .year-selector:focus-within {
+            box-shadow: 0 6px 15px var(--shadow-medium), 0 0 0 3px rgba(96, 165, 250, 0.4);
+        }
+
+        .year-selector label {
+            font-size: 1.1em;
+            font-weight: 500;
+            color: var(--primary-blue);
+        }
+
+        .year-selector input[type="number"] {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 1.1em;
+            width: 100px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color: var(--text-dark);
+        }
+
+        .year-selector input[type="number"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+        }
+
 
         main {
             padding: 20px;
@@ -379,6 +419,18 @@
             .month-container h2, .month-calendar h3 {
                 font-size: 1.8em;
             }
+            .year-selector {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            .year-selector label {
+                font-size: 1em;
+            }
+            .year-selector input[type="number"] {
+                width: 80px;
+                font-size: 1em;
+            }
             .day-cell {
                 font-size: 1em;
                 min-height: 45px;
@@ -440,6 +492,12 @@
         <button id="showCalendar">Calendário de Aniversários</button>
     </div>
 
+    <!-- Adicionado o seletor de ano -->
+    <div class="year-selector" id="yearSelector">
+        <label for="calendarYear">Ano:</label>
+        <input type="number" id="calendarYear" min="1900" max="2100" value="">
+    </div>
+
     <main>
         <!-- Conteúdo do Formato Tabela -->
         <div id="tableView">
@@ -473,7 +531,7 @@
         // Dados dos aniversariantes
         const aniversariantesData = {
             janeiro: {
-                9: ['Lucas'], 17: ['Val'], 19: ['Laira'], 22: ['Adriano'], 27: ['Ronaldo'] 
+                9: ['Lucas'], 17: ['Val'], 19: ['Laira'], 22: ['Adriano'], 27: ['Ronaldo']
             },
             fevereiro: {
                 1: ['Yasmim (Maiara)'], 3: ['Manu (Lucas)'], 4: ['Mireli'], 5: ['Lian (Laira)'], 16: ['Alana (Laira)'],
@@ -498,7 +556,7 @@
             },
             agosto: {
                 5: ['Bernardo'], 10: ['Osmar'], 13: ['Jaimir'], 14: ['Fabio'], 16: ['Bastião (Em Memória)'],
-                18: ['Fabiana', 'Elisiane'], 20: ['Douglas'], 21: ['Otávio'], 24: ['Rodrigo'], 30: ['Vó Rosa (em memória)'] // Vó Rosa alterada para dia 30
+                18: ['Fabiana', 'Elisiane'], 20: ['Douglas'], 21: ['Otávio'], 24: ['Rodrigo'], 30: ['Vó Rosa (em memória)']
             },
             setembro: {
                 5: ['Yasmim (Fernando)', 'Mayara (Fernando)'], 6: ['Alan (Laira)'],
@@ -508,7 +566,7 @@
                 2: ['Marcio'], 3: ['Paulo'], 11: ['Bianca'], 18: ['Eloa (Lucas)'], 19: ['Luzia']
             },
             novembro: {
-                7: ['Vô Bia (Em Memória)'], // Vô Bia movido para dia 7 de Novembro
+                7: ['Vô Bia (Em Memória)'],
                 9: ['Priscila'], 10: ['Greice']
             },
             dezembro: {
@@ -533,6 +591,11 @@
         const popupTitle = document.getElementById('popupTitle');
         const birthdayList = document.getElementById('birthdayList');
         const closePopupButton = document.getElementById('closePopup');
+        const yearSelectorDiv = document.getElementById('yearSelector'); // Novo
+        const calendarYearInput = document.getElementById('calendarYear'); // Novo
+
+        // Variável para armazenar o ano atual do calendário
+        let currentCalendarYear = new Date().getFullYear();
 
         // Funções auxiliares para o calendário
         function getDaysInMonth(year, month) {
@@ -547,11 +610,10 @@
         function renderTableView() {
             tableView.innerHTML = ''; // Limpa o conteúdo anterior
             monthNames.forEach((monthName, index) => {
-                const monthDataKey = removeAccentsAndLowercase(monthName); // Usa a função para remover acentos
+                const monthDataKey = removeAccentsAndLowercase(monthName);
                 const currentMonthBirthdays = aniversariantesData[monthDataKey];
 
                 if (!currentMonthBirthdays || Object.keys(currentMonthBirthdays).length === 0) {
-                    // Se não há aniversariantes para este mês, podemos pular ou adicionar um placeholder
                     return;
                 }
 
@@ -583,21 +645,22 @@
         }
 
         // --- Renderização do Formato Calendário ---
-        function renderCalendarView() {
+        // Agora aceita um parâmetro 'year'
+        function renderCalendarView(year) {
             calendarView.innerHTML = ''; // Limpa o conteúdo anterior
-            const currentYear = new Date().getFullYear();
 
             for (let i = 0; i < 12; i++) {
                 const monthName = monthNames[i];
-                const monthDataKey = removeAccentsAndLowercase(monthName); // Usa a função para remover acentos
-                const daysInMonth = getDaysInMonth(currentYear, i);
-                const firstDay = getFirstDayOfMonth(currentYear, i);
+                const monthDataKey = removeAccentsAndLowercase(monthName);
+                const daysInMonth = getDaysInMonth(year, i);
+                const firstDay = getFirstDayOfMonth(year, i);
 
                 const monthCalendarDiv = document.createElement('div');
                 monthCalendarDiv.className = 'month-calendar';
 
                 const monthTitle = document.createElement('h3');
-                monthTitle.textContent = monthName;
+                // Inclui o ano no título do mês para clareza
+                monthTitle.textContent = `${monthName} ${year}`;
                 monthCalendarDiv.appendChild(monthTitle);
 
                 const calendarGrid = document.createElement('div');
@@ -629,7 +692,7 @@
                         dayCell.appendChild(birthdayMarker);
 
                         dayCell.addEventListener('click', () => {
-                            showBirthdayPopup(monthName, day, currentMonthBirthdays[day]);
+                            showBirthdayPopup(monthName, day, currentMonthBirthdays[day], year); // Passa o ano para o popup
                         });
                     }
                     calendarGrid.appendChild(dayCell);
@@ -640,8 +703,9 @@
         }
 
         // --- Funções do Popup de Aniversariantes ---
-        function showBirthdayPopup(month, day, names) {
-            popupTitle.textContent = `Aniversariantes em ${day} de ${month}`;
+        // Agora aceita um parâmetro 'year'
+        function showBirthdayPopup(month, day, names, year) {
+            popupTitle.textContent = `Aniversariantes em ${day} de ${month} de ${year}`;
             birthdayList.innerHTML = '';
 
             names.forEach(name => {
@@ -664,14 +728,17 @@
             if (viewType === 'table') {
                 tableView.style.display = 'grid';
                 calendarView.style.display = 'none';
+                yearSelectorDiv.style.display = 'none'; // Esconde o seletor de ano
                 showTableBtn.classList.add('active');
                 showCalendarBtn.classList.remove('active');
                 hideBirthdayPopup();
             } else if (viewType === 'calendar') {
                 tableView.style.display = 'none';
                 calendarView.style.display = 'grid';
+                yearSelectorDiv.style.display = 'flex'; // Mostra o seletor de ano
                 showTableBtn.classList.remove('active');
                 showCalendarBtn.classList.add('active');
+                renderCalendarView(currentCalendarYear); // Renderiza com o ano atual
             }
         }
 
@@ -681,11 +748,26 @@
         closePopupButton.addEventListener('click', hideBirthdayPopup);
         overlay.addEventListener('click', hideBirthdayPopup);
 
+        // Event listener para o input do ano
+        calendarYearInput.addEventListener('change', (event) => {
+            const newYear = parseInt(event.target.value);
+            if (!isNaN(newYear) && newYear >= 1900 && newYear <= 2100) { // Validação simples do ano
+                currentCalendarYear = newYear;
+                renderCalendarView(currentCalendarYear); // Renderiza o calendário com o novo ano
+                hideBirthdayPopup(); // Esconde o popup caso esteja aberto
+            } else {
+                alert('Por favor, insira um ano válido entre 1900 e 2100.');
+                calendarYearInput.value = currentCalendarYear; // Volta para o ano anterior válido
+            }
+        });
+
         // Renderizar a visualização padrão (tabela) e o calendário quando a página carregar
         document.addEventListener('DOMContentLoaded', () => {
             renderTableView();
-            renderCalendarView();
-            toggleView('table');
+            // Define o ano inicial no input para o ano atual
+            calendarYearInput.value = currentCalendarYear;
+            renderCalendarView(currentCalendarYear); // Renderiza o calendário com o ano atual
+            toggleView('table'); // Começa na visualização de tabela
         });
     </script>
 </body>
