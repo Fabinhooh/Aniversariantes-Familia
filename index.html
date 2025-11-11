@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aniversariantes da Família</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        /* Variáveis de Cores */
+        :root {
+            --primary-blue: #60a5fa; /* Azul céu amigável */
+            --accent-yellow: #fcd34d; /* Amarelo/Laranja alegre e pastel */
+            --soft-green: #a7f3d0;   /* Verde suave */
+            --background-light: #fefefe; /* Fundo quase branco */
+            --text-dark: #4b5563;    /* Cinza escuro suave */
+            --card-background: #ffffff; /* Branco puro para cards */
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+        }
+
+        /* Estilos CSS (Combinado e Adaptado) */
+        body {
+            font-family: 'Quicksand', sans-serif; /* Fonte mais suave */
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-light);
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 2rem 0;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 6px 15px var(--shadow-medium);
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-family: 'Pacifico', cursive; /* Fonte divertida para o título */
+            margin: 0;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px var(--shadow-medium);
+        }
+
+        .toggle-buttons {
+            margin-bottom: 35px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap; /* Para responsividade */
+            justify-content: center;
+        }
+
+        .toggle-buttons button {
+            background-color: #cbd5e1; /* Cinza claro suave */
+            color: var(--text-dark);
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px; /* Mais arredondado */
+            cursor: pointer;
+            font-size: 1.15em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 10px var(--shadow-light);
+            outline: none; /* Remove borda de foco padrão */
+        }
+
+        .toggle-buttons button:hover {
+            background-color: #a0aec0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px var(--shadow-medium);
+        }
+
+        .toggle-buttons button.active {
+            background-color: var(--soft-green); /* Verde suave para ativo */
+            color: var(--text-dark);
+            box-shadow: 0 5px 15px rgba(167, 243, 208, 0.6); /* Sombra mais vibrante */
+            font-weight: 700;
+            transform: translateY(-1px);
+        }
+
+        .toggle-buttons button.active:hover {
+            background-color: #81e6d9;
+        }
+
+        main {
+            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Estilos para o Formato Tabela */
+        #tableView {
+            display: grid; /* Será alternado para 'none' ou 'grid' */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 50px;
+        }
+
+        .month-container {
+            background-color: var(--card-background);
+            border-radius: 15px; /* Mais arredondado */
+            box-shadow: 0 6px 15px var(--shadow-light);
+            padding: 25px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .month-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+
+        .month-container h2 {
+            color: var(--primary-blue);
+            margin-top: 0;
+            border-bottom: 2px solid #e2e8f0; /* Borda mais suave */
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            font-size: 2em;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .month-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .month-container ul li {
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0; /* Borda pontilhada mais suave */
+            display: flex;
+            align-items: center;
+            font-size: 1.15em;
+        }
+
+        .month-container ul li:last-child {
+            border-bottom: none;
+        }
+
+        .month-container ul li span {
+            font-weight: 700;
+            color: var(--accent-yellow); /* Dia com cor de destaque */
+            margin-right: 12px;
+            background-color: #fef3c7; /* Fundo suave para o dia */
+            padding: 5px 12px;
+            border-radius: 8px;
+            min-width: 45px;
+            text-align: center;
+            box-shadow: 0 1px 3px var(--shadow-light);
+        }
+
+        /* Estilos para o Formato Calendário */
+        #calendarView {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 50px;
+        }
+
+        .month-calendar {
+            background-color: var(--card-background);
+            border-radius: 15px;
+            box-shadow: 0 6px 15px var(--shadow-light);
+            padding: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .month-calendar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-medium);
+        }
+
+        .month-calendar h3 {
+            color: var(--primary-blue);
+            font-size: 2em;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+            width: 100%;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .day-label {
+            font-weight: 700;
+            color: #718096; /* Cinza mais escuro */
+            padding: 10px 0;
+            background-color: #edf2f7; /* Fundo suave para labels */
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .day-cell {
+            padding: 12px 5px;
+            font-size: 1.15em;
+            color: var(--text-dark);
+            background-color: #f7fafc; /* Fundo claro para dias */
+            border-radius: 8px;
+            min-height: 50px; /* Maior altura para clareza */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: default;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .empty-cell {
+            background-color: #fcfcfc;
+            color: #cbd5e1;
+            opacity: 0.8;
+            cursor: default;
+        }
+
+        .birthday-marker {
+            width: 10px; /* Bolinha um pouco maior */
+            height: 10px;
+            background-color: var(--accent-yellow);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 8px; /* Posicionamento ajustado */
+            right: 8px;
+            box-shadow: 0 1px 4px var(--shadow-light);
+            border: 2px solid var(--card-background); /* Borda para contraste */
+        }
+
+        .day-cell.has-birthday {
+            background-color: #fffac2; /* Fundo mais suave para dias com aniversário */
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--accent-yellow);
+        }
+
+        .day-cell.has-birthday:hover {
+            background-color: #fff6a5;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px var(--shadow-light);
+        }
+
+        /* Popup de Aniversariantes */
+        .birthday-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--card-background);
+            border: none; /* Sem borda, apenas sombra */
+            border-radius: 15px;
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            padding: 35px;
+            z-index: 1000;
+            max-width: 450px;
+            width: 90%;
+            text-align: left;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -60%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .birthday-popup h4 {
+            color: var(--primary-blue);
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            font-weight: 700;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            text-align: center;
+        }
+
+        .birthday-popup ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .birthday-popup ul li {
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            color: var(--text-dark);
+            font-size: 1.2em;
+        }
+
+        .birthday-popup ul li:last-child {
+            border-bottom: none;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 18px;
+            right: 18px;
+            background: none;
+            border: none;
+            font-size: 2.2em;
+            color: #9ca3af; /* Cinza mais suave */
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
+            outline: none;
+        }
+
+        .close-button:hover {
+            color: var(--accent-yellow); /* Close button em amarelo no hover */
+            transform: rotate(90deg);
+        }
+
+        /* Overlay para o popup */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4); /* Sombra mais suave */
+            backdrop-filter: blur(3px); /* Efeito de desfoque */
+            z-index: 999;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            background-color: #93c5fd; /* Azul um pouco mais escuro que o primário */
+            color: white;
+            width: 100%;
+            box-shadow: 0 -6px 15px var(--shadow-light);
+            margin-top: auto;
+            font-size: 0.9em;
+        }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.2em;
+            }
+            .toggle-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .toggle-buttons button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .month-container, .month-calendar {
+                padding: 20px;
+            }
+            .month-container h2, .month-calendar h3 {
+                font-size: 1.8em;
+            }
+            .day-cell {
+                font-size: 1em;
+                min-height: 45px;
+            }
+            .day-label {
+                font-size: 0.85em;
+            }
+            .birthday-marker {
+                width: 8px;
+                height: 8px;
+                bottom: 6px;
+                right: 6px;
+            }
+            .birthday-popup {
+                padding: 25px;
+            }
+            .birthday-popup h4 {
+                font-size: 1.5em;
+            }
+            .close-button {
+                font-size: 1.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            .toggle-buttons button {
+                width: 90%; /* Botões ocupam mais largura */
+            }
+            .month-container, .month-calendar {
+                padding: 15px;
+            }
+            .month-container h2, .month-calendar h3 {
+                font-size: 1.6em;
+            }
+            .month-container ul li {
+                font-size: 1em;
+            }
+            .month-container ul li span {
+                min-width: 38px;
+                padding: 4px 10px;
+            }
+            .day-cell {
+                min-height: 40px;
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Aniversariantes da Família</h1>
+    </header>
+
+    <div class="toggle-buttons">
+        <button id="showTable" class="active">Lista de Aniversários</button>
+        <button id="showCalendar">Calendário de Aniversários</button>
+    </div>
+
+    <main>
+        <!-- Conteúdo do Formato Tabela -->
+        <div id="tableView">
+            <!-- Os meses em formato de lista serão injetados aqui pelo JavaScript -->
+        </div>
+
+        <!-- Conteúdo do Formato Calendário -->
+        <div id="calendarView">
+            <!-- Os calendários dos meses serão injetados aqui pelo JavaScript -->
+        </div>
+    </main>
+
+    <!-- Popup de Aniversariantes (para o Calendário) -->
+    <div class="overlay" id="overlay"></div>
+    <div class="birthday-popup" id="birthdayPopup">
+        <button class="close-button" id="closePopup">&times;</button>
+        <h4 id="popupTitle"></h4>
+        <ul id="birthdayList"></ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 - Desenvolvido por Fabinho.</p>
+    </footer>
+
+    <script>
+        // Dados dos aniversariantes
+        const aniversariantesData = {
+            janeiro: {
+                9: ['Lucas'], 17: ['Val'], 19: ['Laira'], 22: ['Adriano'], 27: ['Ronaldo'] // Adriano no dia 22
+            },
+            fevereiro: {
+                1: ['Yasmim (Maiara)'], 3: ['Manu (Lucas)'], 4: ['Mireli'], 5: ['Lian (Laira)'], 16: ['Alana (Laira)'],
+                17: ['Rosangela', 'Mazinha'], 26: ['Maiara']
+            },
+            marco: {
+                1: ['Juliano'], 2: ['Lavinia'], 3: ['Djalma'], 12: ['Daniel'], 17: ['Tia Sônia'],
+                20: ['Guilherme'], 23: ['Breno'], 27: ['David'], 28: ['Geovan']
+            },
+            abril: {
+                2: ['Luciano'], 5: ['Maria'], 6: ['João Pedro'], 24: ['Willian'], 28: ['Emilly (Lucas)']
+            },
+            maio: {
+                7: ['Laudi'], 10: ['Lizandra'], 19: ['Agueda'], 22: ['Leonor', 'Tiago', 'Mana', 'Gabi'],
+                23: ['Beatriz']
+            },
+            junho: {
+                2: ['Eliana'], 7: ['Leandro'], 17: ['Flávio'], 25: ['Letícia']
+            },
+            julho: {
+                4: ['Mari (Pri)'], 14: ['Bel'], 31: ['Bila', 'Angela']
+            },
+            agosto: {
+                5: ['Bernardo'], 10: ['Osmar'], 13: ['Jaimir'], 14: ['Fabio'], 16: ['Bastião (Em Memória)'],
+                18: ['Fabiana', 'Elisiane'], 20: ['Douglas'], 21: ['Otávio'], 24: ['Rodrigo'], 31: ['Vó Rosa (em memória)']
+            },
+            setembro: {
+                5: ['Yasmim (Fernando)', 'Mayara (Fernando)'], 6: ['Alan (Laira)'], 7: ['Vô Bia (Em Memória)'],
+                12: ['Laureci']
+            },
+            outubro: {
+                2: ['Marcio'], 3: ['Paulo'], 11: ['Bianca'], 18: ['Eloa (Lucas)'], 19: ['Luzia']
+            },
+            novembro: {
+                9: ['Priscila'], 10: ['Greice']
+            },
+            dezembro: {
+                2: ['José'], 10: ['Bruno'], 24: ['Sandro', 'Heitor (Laira)'], 27: ['Mauricio'],
+                29: ['Manoel'], 31: ['Fernando']
+            }
+        };
+
+        const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        ];
+        const dayLabels = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+        // Elementos DOM
+        const showTableBtn = document.getElementById('showTable');
+        const showCalendarBtn = document.getElementById('showCalendar');
+        const tableView = document.getElementById('tableView');
+        const calendarView = document.getElementById('calendarView');
+        const birthdayPopup = document.getElementById('birthdayPopup');
+        const overlay = document.getElementById('overlay');
+        const popupTitle = document.getElementById('popupTitle');
+        const birthdayList = document.getElementById('birthdayList');
+        const closePopupButton = document.getElementById('closePopup');
+
+        // Funções auxiliares para o calendário
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function getFirstDayOfMonth(year, month) {
+            return new Date(year, month, 1).getDay(); // 0 = Domingo, 1 = Segunda, etc.
+        }
+
+        // --- Renderização do Formato Tabela ---
+        function renderTableView() {
+            tableView.innerHTML = ''; // Limpa o conteúdo anterior
+            monthNames.forEach((monthName, index) => {
+                const monthDataKey = monthName.toLowerCase();
+                const currentMonthBirthdays = aniversariantesData[monthDataKey];
+
+                if (!currentMonthBirthdays || Object.keys(currentMonthBirthdays).length === 0) {
+                    // Se não há aniversariantes para este mês, podemos pular ou adicionar um placeholder
+                    return;
+                }
+
+                const monthContainerDiv = document.createElement('div');
+                monthContainerDiv.className = 'month-container';
+                monthContainerDiv.id = monthDataKey;
+
+                const monthTitle = document.createElement('h2');
+                monthTitle.textContent = monthName;
+                monthContainerDiv.appendChild(monthTitle);
+
+                const ul = document.createElement('ul');
+                const sortedDays = Object.keys(currentMonthBirthdays).sort((a, b) => parseInt(a) - parseInt(b));
+
+                sortedDays.forEach(day => {
+                    const names = currentMonthBirthdays[day];
+                    names.forEach(name => {
+                        const li = document.createElement('li');
+                        const span = document.createElement('span');
+                        span.textContent = day.padStart(2, '0');
+                        li.appendChild(span);
+                        li.append(name);
+                        ul.appendChild(li);
+                    });
+                });
+                monthContainerDiv.appendChild(ul);
+                tableView.appendChild(monthContainerDiv);
+            });
+        }
+
+        // --- Renderização do Formato Calendário ---
+        function renderCalendarView() {
+            calendarView.innerHTML = ''; // Limpa o conteúdo anterior
+            const currentYear = new Date().getFullYear();
+
+            for (let i = 0; i < 12; i++) {
+                const monthName = monthNames[i];
+                const monthDataKey = monthName.toLowerCase();
+                const daysInMonth = getDaysInMonth(currentYear, i);
+                const firstDay = getFirstDayOfMonth(currentYear, i);
+
+                const monthCalendarDiv = document.createElement('div');
+                monthCalendarDiv.className = 'month-calendar';
+
+                const monthTitle = document.createElement('h3');
+                monthTitle.textContent = monthName;
+                monthCalendarDiv.appendChild(monthTitle);
+
+                const calendarGrid = document.createElement('div');
+                calendarGrid.className = 'calendar-grid';
+
+                dayLabels.forEach(label => {
+                    const dayLabelDiv = document.createElement('div');
+                    dayLabelDiv.className = 'day-label';
+                    dayLabelDiv.textContent = label;
+                    calendarGrid.appendChild(dayLabelDiv);
+                });
+
+                for (let j = 0; j < firstDay; j++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.className = 'day-cell empty-cell';
+                    calendarGrid.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    dayCell.textContent = day;
+
+                    const currentMonthBirthdays = aniversariantesData[monthDataKey];
+                    if (currentMonthBirthdays && currentMonthBirthdays[day]) {
+                        dayCell.classList.add('has-birthday');
+                        const birthdayMarker = document.createElement('div');
+                        birthdayMarker.className = 'birthday-marker';
+                        dayCell.appendChild(birthdayMarker);
+
+                        dayCell.addEventListener('click', () => {
+                            showBirthdayPopup(monthName, day, currentMonthBirthdays[day]);
+                        });
+                    }
+                    calendarGrid.appendChild(dayCell);
+                }
+                monthCalendarDiv.appendChild(calendarGrid);
+                calendarView.appendChild(monthCalendarDiv);
+            }
+        }
+
+        // --- Funções do Popup de Aniversariantes ---
+        function showBirthdayPopup(month, day, names) {
+            popupTitle.textContent = `Aniversariantes em ${day} de ${month}`;
+            birthdayList.innerHTML = '';
+
+            names.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                birthdayList.appendChild(li);
+            });
+
+            birthdayPopup.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+
+        function hideBirthdayPopup() {
+            birthdayPopup.style.display = 'none';
+            overlay.style.display = 'none';
+        }
+
+        // --- Lógica de Troca de Visualização ---
+        function toggleView(viewType) {
+            if (viewType === 'table') {
+                tableView.style.display = 'grid';
+                calendarView.style.display = 'none';
+                showTableBtn.classList.add('active');
+                showCalendarBtn.classList.remove('active');
+                hideBirthdayPopup();
+            } else if (viewType === 'calendar') {
+                tableView.style.display = 'none';
+                calendarView.style.display = 'grid';
+                showTableBtn.classList.remove('active');
+                showCalendarBtn.classList.add('active');
+            }
+        }
+
+        // --- Event Listeners ---
+        showTableBtn.addEventListener('click', () => toggleView('table'));
+        showCalendarBtn.addEventListener('click', () => toggleView('calendar'));
+        closePopupButton.addEventListener('click', hideBirthdayPopup);
+        overlay.addEventListener('click', hideBirthdayPopup);
+
+        // Renderizar a visualização padrão (tabela) e o calendário quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTableView();
+            renderCalendarView();
+            toggleView('table');
+        });
+    </script>
+</body>
+</html>
